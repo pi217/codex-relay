@@ -16,6 +16,23 @@ This pnpm monorepo contains a mobile Codex client backed by a local server. `app
 - `pnpm typecheck`: run `tsc --noEmit` in every package.
 - `pnpm test`: run the server Vitest suite.
 
+## Working Alongside Another Agent
+
+When more than one agent works on this repository at once (for example Claude
+Code and Cowork), coordinate through the agent bus instead of leaving the other
+side to guess. Run `pnpm agent-bus init` once to switch it on; without `.coop/`
+the bus stays inert.
+
+- Read your inbox before starting: `pnpm -s agent-bus drain --agent <you>`.
+  Claude Code does this automatically through its `SessionStart` hook.
+- Post a `task`, `result`, `question`, or `answer` when the other agent needs to
+  know something: `pnpm -s agent-bus post --from <you> --to <them> ...`.
+- Claim files before editing shared code, and run
+  `pnpm -s agent-bus check --agent <you> --path <path>` before touching files you
+  did not claim. A non-zero exit means someone else owns them.
+
+See [docs/agent-bus.md](./docs/agent-bus.md) for the full protocol.
+
 ## Coding Style & Naming Conventions
 
 Use TypeScript throughout. Formatting is owned by `oxfmt`; do not hand-format around it. The current style uses two-space indentation, double quotes, trailing commas where added, and ESM imports. React components use `PascalCase` file and export names, hooks use `use-*` file names and `useX` functions, and helpers use `camelCase`. Keep shared API shapes in `packages/codex-relay/src/api-schema.ts`.
