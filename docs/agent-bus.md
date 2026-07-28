@@ -48,6 +48,13 @@ The `Stop` hook deliberately posts a _signal_, not the answer text: the hook
 payload does not contain the turn content, and a precise "finished on branch X
 with N changed files" is more actionable than a guess.
 
+Both commands use a plain relative path and no shell variables. Claude Code
+runs hooks from the project directory, and it spawns PowerShell on Windows,
+where `$CLAUDE_PROJECT_DIR` would be read as an undefined PowerShell variable
+and expand to nothing. `node scripts/agent-bus.mjs` means the same thing in
+bash, cmd, and PowerShell. The launcher resolves the project root from its own
+location, so nothing downstream depends on the caller's shell.
+
 Cowork has no local hooks, so the same discipline is carried by the `agent-bus`
 skill in `.agents/skills/agent-bus/SKILL.md`: read the inbox when a task starts,
 post when a result exists, claim files before editing them.
