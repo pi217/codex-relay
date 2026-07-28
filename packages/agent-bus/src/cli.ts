@@ -1,5 +1,6 @@
 import { ALL_AGENTS, AgentIdSchema, MessageKindSchema, TaskStatusSchema } from "./schema.js";
 import { parseHookPayload, runSessionStartHook, runStopHook } from "./hooks.js";
+import { renderDoctorReport, runDoctor } from "./doctor.js";
 import { renderMessage, renderTaskLine } from "./render.js";
 import { AgentBusError, createAgentBus, type AgentBus } from "./store.js";
 import { readFile } from "node:fs/promises";
@@ -18,6 +19,7 @@ Usage:
   agent-bus task claim <task-id> --agent <agent>
   agent-bus task update <task-id> --agent <agent> [--status <status>] [--note <text>] [--path <path>...]
   agent-bus check --agent <agent> --path <path>...
+  agent-bus doctor
   agent-bus hook session-start --agent <agent>
   agent-bus hook stop --agent <agent>
 
@@ -90,6 +92,8 @@ export async function main(argv: string[]): Promise<number> {
       return runTask(bus, rest, values);
     case "check":
       return runCheck(bus, values);
+    case "doctor":
+      return runDoctorCommand(bus, values);
     case "hook":
       return runHook(bus, rest, values);
     default:
@@ -250,6 +254,14 @@ async function runCheck(bus: AgentBus, values: Values) {
     );
   }
   return 1;
+}
+
+async function runDoctorCommand(bus: AgentBus, values: Values) {
+  const report = await runDoctor(bus);
+  process.stdout.write(
+    values.json ? `${JSON.stringify(report)}\n` : `${renderDoctorReport(report)}\n`,
+  );
+  return report.healthy ? 0 : 1;
 }
 
 async function runHook(bus: AgentBus, rest: string[], values: Values) {

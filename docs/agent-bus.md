@@ -76,7 +76,30 @@ pnpm -s agent-bus task claim <task-id> --agent claude-code
 pnpm -s agent-bus task update <task-id> --agent claude-code --status done --note "shipped"
 
 pnpm -s agent-bus check --agent claude-code --path packages/codex-relay/src/app.ts
+
+pnpm -s agent-bus doctor
 ```
+
+## Checking the setup
+
+`doctor` answers "is this thing actually wired up?" in one command, so a stuck
+setup does not need anyone to read raw JSON out of `.coop`. It exits non-zero
+when something is off:
+
+```
+mailbox    ok       /path/to/project/.coop
+hooks      ok       SessionStart, Stop
+messages   2, newest 2026-07-28T16:06:36.738Z
+  claude-code    read 1, 0 pending, last read "Zweiter Test"
+  cowork         read 0, 1 pending
+
+Everything is wired up and Claude Code has been draining its inbox.
+```
+
+The three failures it names precisely: the mailbox does not exist, the hooks are
+missing or point somewhere else, or the hooks are configured but Claude Code has
+never drained anything — which almost always means the session predates the
+hooks and needs a restart.
 
 `--body -` reads the body from stdin, `--body-file <path>` from a file. Add
 `--json` for machine-readable output. `--root <path>` or
