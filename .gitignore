@@ -5,6 +5,9 @@ dogfood-output
 dogfood-output-*
 .codex-relay/
 apps/server/.codex-relay/
+
+# agent bus mailbox (see docs/agent-bus.md)
+.coop/
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
